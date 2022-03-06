@@ -54,11 +54,22 @@ export default function createPersistoid(config: PersistConfig<any>): Persistoid
     })
 
     // start the time iterator if not running (read: throttle)
-    if (timeIterator === null) {
+    /*if (timeIterator === null) {
       timeIterator = setInterval(processNextKey, throttle)
-    }
+    }*/
 
     lastState = state
+    // if no throttle, there's no point in using
+    // an interval, this allows background execution in RN.
+    if (!throttle) {
+      while (keysToProcess.length) {
+        processNextKey()
+      }
+    } else {
+      if (timeIterator === null) {
+        timeIterator = setInterval(processNextKey, throttle)
+      }
+    }
   }
 
   function processNextKey() {
